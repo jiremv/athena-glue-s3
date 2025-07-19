@@ -1,0 +1,28 @@
+{
+  "Comment": "State Machine to orchestrate Athena query and Glue crawler execution",
+  "StartAt": "StartGlueCrawler",
+  "States": {
+    "StartGlueCrawler": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startCrawler.sync",
+      "Parameters": {
+        "Name": "testcrawler"
+      },
+      "Next": "StartAthenaQuery"
+    },
+    "StartAthenaQuery": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::athena:startQueryExecution.sync",
+      "Parameters": {
+        "QueryString": "SELECT * FROM my_database.my_table;",
+        "QueryExecutionContext": {
+          "Database": "my_database"
+        },
+        "ResultConfiguration": {
+          "OutputLocation": "s3://athena-query-results/"
+        }
+      },
+      "End": true
+    }
+  }
+}
